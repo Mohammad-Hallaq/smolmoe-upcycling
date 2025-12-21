@@ -19,7 +19,7 @@ TEST_PROMPT = "Where is the Great Wall?"
 
 
 def main(
-    checkpoint: str = "meta-llama/Llama-2-7b-hf",   # replace with the actual small model used
+    checkpoint: str = "HuggingFaceTB/SmolLM-135M",   # replace with the actual small model used
     steps: int = 100,
     report_every: int = 10,
     batch_size: int = 4,
@@ -82,7 +82,6 @@ def main(
         val_fraction=0.2,
         max_samples=len(sub_ds),
         seed=789,
-        existing_ds=sub_ds,
     )
 
     train_loader, val_loader = build_dataloaders(train_ds, val_ds, batch_size, device)

@@ -26,7 +26,7 @@ def greedy_ids(model, tokenizer, prompt, max_new_tokens=32, device="cpu"):
     return ids
 
 
-def test_upcycled_moe_matches_dense(checkpoint="...", max_new_tokens=16):
+def test_upcycled_moe_matches_dense(checkpoint="HuggingFaceTB/SmolLM-135M", max_new_tokens=16):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     dense = AutoModelForCausalLM.from_pretrained(checkpoint).to(device).eval()
     tok = AutoTokenizer.from_pretrained(checkpoint)

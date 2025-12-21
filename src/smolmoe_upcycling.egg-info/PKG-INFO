@@ -1,3 +1,16 @@
+Metadata-Version: 2.4
+Name: smolmoe-upcycling
+Version: 0.1.0
+Summary: SmolMoE: dense-to-MoE upcycling and continued pretraining
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: torch
+Requires-Dist: transformers
+Requires-Dist: datasets
+Requires-Dist: huggingface_hub
+Requires-Dist: matplotlib
+Requires-Dist: accelerate
+
 # SmolMoE Upcycling: From Dense LM to Mixture-of-Experts
 
 A lightweight implementation of Mixture-of-Experts (MoE) language models with sparse upcycling capabilities. This project demonstrates how to convert pre-trained dense language models into efficient MoE architectures and provides a complete training pipeline with advanced dataset selection strategies.
@@ -87,7 +100,8 @@ This implements the "Sparse Upcycling" technique: repurposing a dense checkpoint
 Train the MoE router on the cosmopedia dataset:
 
 ```bash
-python -m experiments.run_continued_pretraining 
+python -m experiments.run_continued_pretraining \
+  --checkpoint <your_hf_dense_model>
 ```
 
 **Training features:**
@@ -108,7 +122,8 @@ python -m experiments.run_continued_pretraining
 Improve training efficiency with smart data selection:
 
 ```bash
-python -m experiments.run_continued_pretraining_entropy_selection
+python -m experiments.run_continued_pretraining_entropy_selection \
+  --checkpoint <your_hf_dense_model>
 ```
 
 **Selection strategy:**

@@ -19,7 +19,7 @@ TEST_PROMPT = "Where is the Great Wall?"
 
 
 def main(
-    checkpoint: str = "meta-llama/Llama-2-7b-hf",   # replace with the actual small model you used
+    checkpoint: str = "HuggingFaceTB/SmolLM-135M", 
     steps: int = 100,
     report_every: int = 10,
     batch_size: int = 4,

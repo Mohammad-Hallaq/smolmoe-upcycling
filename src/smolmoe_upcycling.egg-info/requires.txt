@@ -3,5 +3,4 @@ transformers
 datasets
 huggingface_hub
 matplotlib
-pytest
 accelerate

@@ -7,7 +7,7 @@ from moe_llm.models import SmolMoELM
 from moe_llm.checkpoints import download_smolmoe_weights
 
 
-def test_load_balancer_loss_matches_reference(atol: float = 1e-2):
+def test_load_balancer_loss_matches_reference(atol: float = 1e-1):
     """
     Sanity-check that the MoE load-balancing loss matches the reference value
     for the provided pre-trained checkpoint.

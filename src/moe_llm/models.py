@@ -41,24 +41,15 @@ def repeat_kv(hidden_states: torch.Tensor, n_rep: int) -> torch.Tensor:
 
 
 class RotaryEmbedder(nn.Module):
-    def __init__(self, dim: int, base: float):
+    def __init__(self, dim, base):
         super().__init__()
-        self.register_buffer(
-            "freq",
-            1.0
-            / (
-                base
-                ** (torch.arange(0, dim, 2, dtype=torch.int64).float() / dim)
-            ),
-            persistent=False,
-        )
+        self.freq = 1/(base ** (torch.arange(0, dim, 2, dtype=torch.int64).float()/dim))
 
     @torch.no_grad()
-    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-        # x: [B, n_heads, T, head_dim] (we only care about sequence length here)
-        seq_len = x.shape[-2]
-        pos = torch.arange(seq_len, dtype=torch.long, device=x.device)
-        angles = torch.einsum("f,p->pf", self.freq, pos.float()).unsqueeze(0)
+    def forward(self,x):
+        pos = torch.arange(x.shape[-2],dtype=torch.long)
+        angles = torch.einsum('f,p->pf', self.freq, pos.float()).unsqueeze(dim=0)
+
         emb = torch.cat((angles, angles), dim=-1)
         return emb.cos(), emb.sin()
 
@@ -97,13 +88,6 @@ class MoE(nn.Module):
         # Buffers for diagnostics (expert utilization + aux loss)
         self._expert_utilization = None
         self._aux_lb = None
-
-        self.reset_parameters()
-
-    def reset_parameters(self):
-        nn.init.kaiming_uniform_(self.gate.weight, a=math.sqrt(5))
-        for bank in (self.gate_bank, self.up_bank, self.down_bank):
-            nn.init.kaiming_uniform_(bank, a=math.sqrt(5))
 
     def expert_utilization(self, logits: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         """
@@ -219,7 +203,7 @@ class RopeAttention(nn.Module):
         )
         attn_weights = attn_weights + attention_mask
         attn_weights = nn.functional.softmax(attn_weights, dim=-1)
-        # dropout can be added here if desired
+        attn_weights = nn.functional.dropout(attn_weights,p=0)
 
         attn_output = torch.matmul(attn_weights, v_states)
         attn_output = attn_output.transpose(1, 2).contiguous()
@@ -268,7 +252,9 @@ class LlamaDecoder(nn.Module):
         hidden_states = self.moe(hidden_states)
         hidden_states = hidden_states + residual
 
-        return hidden_states
+        outputs = (hidden_states,)
+
+        return outputs
 
 
 class SmolMoEModel(nn.Module):
@@ -291,9 +277,13 @@ class SmolMoEModel(nn.Module):
     ):
         hidden_states = self.embed_tokens(input_ids)
         for decoder_layer in self.layers:
-            hidden_states = decoder_layer(hidden_states, attention_mask=attention_mask)
+            layer_outputs = decoder_layer(
+                hidden_states,
+                attention_mask=attention_mask,
+            )
+            hidden_states = layer_outputs[0]
         hidden_states = self.norm(hidden_states)
-        return hidden_states
+        return [hidden_states]
 
 
 class SmolMoELM(nn.Module):
@@ -305,9 +295,12 @@ class SmolMoELM(nn.Module):
         self.reset_weights_and_metrics()
 
     def forward(self, input_ids: torch.Tensor, attention_mask: torch.Tensor):
-        hidden_states = self.model(input_ids=input_ids, attention_mask=attention_mask)
+        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
+        hidden_states = outputs[0]
+
         logits = self.lm_head(hidden_states)
-        return {"logits": logits.float()}
+        logits = logits.float()
+        return {'logits':logits}
 
     def get_expert_utilization(self) -> Tuple[torch.Tensor, torch.Tensor]:
         """
@@ -345,13 +338,22 @@ class SmolMoELM(nn.Module):
 
     def reset_weights_and_metrics(self) -> None:
         with torch.no_grad():
-            for m in self.modules():
-                if m is self:
-                    continue
-                fn = getattr(m, "reset_parameters", None) or getattr(
-                    m, "reset_parameters_", None
-                )
+            modules = list(self.modules())[1:]
+            for m in modules:
+                fn = getattr(m, "reset_parameters_", None) or getattr(m, "reset_parameters", None)
                 if callable(fn):
                     fn()
 
-            # Expert diagnostics are set lazily during forward passes
+            for m in modules:
+                if hasattr(m, "reset_parameters") or hasattr(m, "reset_parameters_"):
+                    continue
+                any_param = False
+                for name, p in m.named_parameters(recurse=False):
+                    any_param = True
+                    if p.dim() == 1:
+                        if name == "bias":
+                            p.zero_()
+                        else:
+                            p.fill_(1.0)
+                    else:
+                        nn.init.kaiming_uniform_(p, a=math.sqrt(5))

@@ -13,7 +13,7 @@ TEST_PROMPT = "Where is the Great Wall?"
 
 
 def main(
-    checkpoint: str = "meta-llama/Llama-2-7b-hf",  # placeholder; set to your actual checkpoint
+    checkpoint: str = "HuggingFaceTB/SmolLM-135M", 
     max_new_tokens: int = 50,
 ):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -21,7 +21,7 @@ def main(
     # 1. Load dense model + tokenizer
     dense_model = AutoModelForCausalLM.from_pretrained(
         checkpoint,
-        torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
+        dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
         device_map="auto" if torch.cuda.is_available() else None,
     ).eval()
     tokenizer = AutoTokenizer.from_pretrained(checkpoint)

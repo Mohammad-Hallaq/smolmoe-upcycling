@@ -12,7 +12,7 @@ class SmolMoEConfig:
     kv_heads: int = 3
     num_experts: int = 3
     num_experts_per_token: int = 1
-    rope_theta: float = 10_000.0
+    rope_theta: float = 10000.0
     moe_noise_std: float = 1e-1
 
 

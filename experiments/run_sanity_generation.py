@@ -9,7 +9,7 @@ from moe_llm.checkpoints import download_smolmoe_weights
 from moe_llm.generation import compare_generations
 
 
-TEST_PROMPT = "Where is the Great Wall?"
+TEST_PROMPT = "Who is Alexander the Great?"
 
 
 def main():
@@ -17,7 +17,7 @@ def main():
 
     # 1. Load tokenizer – choose any compatible tokenizer
     #    (You can change this to whatever was used originally, e.g. a LLaMA-like tokenizer)
-    tokenizer_name = "gpt2"  # placeholder – set to the actual tokenizer you used
+    tokenizer_name = "HuggingFaceTB/SmolLM-135M" 
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
