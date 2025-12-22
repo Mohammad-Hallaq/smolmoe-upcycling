@@ -23,7 +23,6 @@ def from_hf_causal_lm_config(
 ) -> SmolMoEConfig:
     """
     Construct a SmolMoEConfig from a Hugging Face causal LM config.
-    Assumes LLaMA-like naming: model.embed_tokens, model.layers, etc.
     """
     return SmolMoEConfig(
         vocab_size=hf_cfg.vocab_size,

@@ -19,7 +19,7 @@ TEST_PROMPT = "Where is the Great Wall?"
 
 
 def main(
-    checkpoint: str = "HuggingFaceTB/SmolLM-135M",   # replace with the actual small model used
+    checkpoint: str = "HuggingFaceTB/SmolLM-135M",  
     steps: int = 100,
     report_every: int = 10,
     batch_size: int = 4,
@@ -58,21 +58,9 @@ def main(
 
     # Now reuse the same blockification/tokenization logic on the filtered subset
     # (we treat it as if it were our "raw dataset" limited to these 1000 chosen examples)
-    # For simplicity, we can temporarily write a small wrapper, or you can adapt build_dataset
-    # to accept an existing Dataset object. Here is a simple inline approach:
 
     from moe_llm.data import build_dataset as _build_dataset
 
-    # We emulate build_dataset but with `max_samples=len(sub_ds)` and a custom source
-    # Easiest: save sub_ds to disk or pass via a local loader; to keep it simple in code:
-    # You can modify build_dataset to accept a `dataset` argument instead of loading within.
-    # For now, assume we slightly refactor build_dataset to accept `existing_ds=None`.
-
-    # ---- Alternative quick approach (cleanest): refactor build_dataset signature ----
-    # def build_dataset(..., existing_ds: Dataset | None = None)
-    # and if existing_ds is not None, skip load_dataset and use that.
-
-    # Example usage after such refactor:
     train_ds, val_ds = _build_dataset(
         dataset_id="HuggingFaceTB/cosmopedia-100k",
         subset=None,
@@ -131,8 +119,8 @@ def main(
     # 6. Plot metrics
     if training_metrics["Train Loss"]:
         x_vals = [report_every * i for i in range(1, len(training_metrics["Train Loss"]) + 1)]
-        plot_metrics(training_metrics, x_vals=x_vals, suptitle="Training Metrics")
-        plot_metrics(moe_metrics, x_vals=x_vals, suptitle="MoE Metrics")
+        plot_metrics(training_metrics, x_vals=x_vals, suptitle="Training Metrics", save_dir="runs/exp2_with_selection/plots", filename="training_metrics.png", show=False)
+        plot_metrics(moe_metrics, x_vals=x_vals, suptitle="MoE Metrics", save_dir="runs/exp2_with_selection/plots", filename="moe_metrics.png", show=False)
 
     # 7. Final generation sanity check
     moe_model.to("cpu").eval()

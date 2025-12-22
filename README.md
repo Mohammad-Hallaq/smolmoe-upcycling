@@ -18,7 +18,7 @@ git clone https://github.com/Mohammad-Hallaq/smolmoe-upcycling.git
 cd smolmoe-upcycling
 
 python -m venv venv
-source .venv/bin/activate  
+source venv/bin/activate  
 
 pip install -r requirements.txt
 pip install -e .
@@ -157,7 +157,7 @@ pytest -q
 
 ## Future Work
 
-- Temperature-based and stochastic routing mechanisms
+<!-- - Temperature-based and stochastic routing mechanisms -->
 - Alternative router training schedules and auxiliary losses
 - Expert specialization for multi-task datasets (code, math, chat)
 - Scaling to larger model architectures

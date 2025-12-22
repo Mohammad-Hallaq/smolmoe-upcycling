@@ -94,8 +94,8 @@ def main(
     # 6. Plot metrics
     if training_metrics["Train Loss"]:
         x_vals = [report_every * i for i in range(1, len(training_metrics["Train Loss"]) + 1)]
-        plot_metrics(training_metrics, x_vals=x_vals, suptitle="Training Metrics")
-        plot_metrics(moe_metrics, x_vals=x_vals, suptitle="MoE Metrics")
+        plot_metrics(training_metrics, x_vals=x_vals, suptitle="Training Metrics", save_dir="runs/exp1/plots", filename="training_metrics.png", show=False)
+        plot_metrics(moe_metrics, x_vals=x_vals, suptitle="MoE Metrics", save_dir="runs/exp1/plots", filename="moe_metrics.png", show=False)
 
     # 7. Final generation sanity check
     moe_model.to("cpu").eval()

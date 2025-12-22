@@ -16,7 +16,6 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # 1. Load tokenizer – choose any compatible tokenizer
-    #    (You can change this to whatever was used originally, e.g. a LLaMA-like tokenizer)
     tokenizer_name = "HuggingFaceTB/SmolLM-135M" 
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
     if tokenizer.pad_token is None:
@@ -26,7 +25,6 @@ def main():
     config = SmolMoEConfig()
     model = SmolMoELM(config).to(device)
 
-    # Use HF Hub helper (or local file if already downloaded)
     weights_path = download_smolmoe_weights(
         repo_id="dsouzadaniel/C4AI_SmolMoELM",
         filename="trial_weights.pt",

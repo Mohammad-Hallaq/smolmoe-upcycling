@@ -17,9 +17,9 @@ def main():
     s3 = text_per_token_entropy(text3, tokenizer)
 
     print("Entropy scores (bits/token):")
-    print(f"text1: {s1:.3f}")
-    print(f"text2: {s2:.3f}")
-    print(f"text3: {s3:.3f}")
+    print(f"text1: {text1} \nhas a score of {s1:.3f}\n")
+    print(f"text2: {text2} \nhas a score of {s2:.3f}\n")
+    print(f"text3: {text3} \nhas a score of {s3:.3f}")
 
 
 if __name__ == "__main__":

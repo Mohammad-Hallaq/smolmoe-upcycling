@@ -1,5 +1,6 @@
 # src/moe_llm/metrics.py
-from typing import Dict, Sequence
+from typing import Dict, Sequence, Optional
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 
@@ -10,6 +11,9 @@ def plot_metrics(
     metrics: Dict[str, Sequence[float]],
     x_vals: Sequence[float] | None = None,
     suptitle: str = "Training Metrics",
+    save_dir: Optional[str | Path] = None,
+    filename: str = "metrics.png",
+    show: bool = True,
 ) -> None:
     """
     Plot a collection of metrics as line plots on a single row.
@@ -20,6 +24,14 @@ def plot_metrics(
         Mapping from metric name to a sequence of values.
     x_vals : sequence, optional
         Shared x-axis values; defaults to 1..len(metric).
+    suptitle : str
+        Figure-level title.
+    save_dir : str or Path, optional
+        Directory where the plot will be saved. If None, the plot is not saved.
+    filename : str
+        Name of the saved figure file.
+    show : bool
+        Whether to display the plot interactively (plt.show()).
     """
     metrics = detach_metrics(metrics)
 
@@ -46,4 +58,16 @@ def plot_metrics(
 
     fig.suptitle(suptitle)
     fig.supxlabel("Steps")
-    plt.show()
+
+    # --- Save to disk if requested ---
+    if save_dir is not None:
+        save_dir = Path(save_dir)
+        save_dir.mkdir(parents=True, exist_ok=True)
+        save_path = save_dir / filename
+        fig.savefig(save_path, dpi=150)
+        print(f"[plot_metrics] Saved figure to {save_path}")
+
+    if show:
+        plt.show()
+    else:
+        plt.close(fig)
